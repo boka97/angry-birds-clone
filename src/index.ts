@@ -1,5 +1,7 @@
 import './index.css'
 import Matter from 'matter-js'
+import { buildWalls } from './walls/walls'
+import { jump } from './events/keyboard'
 
 const { Engine, Render, World, Bodies } = Matter
 
@@ -24,12 +26,15 @@ const ball = Bodies.circle(420, 15, 20, {
 const boxA = Bodies.rectangle(400, 200, 80, 80)
 const boxB = Bodies.rectangle(450, 50, 80, 80)
 
+const { world } = engine
 const { canvas } = render
-const ground = Bodies.rectangle(0, canvas.height, canvas.width * 2, 120, {
-    isStatic: true,
-})
 
-World.add(engine.world, [ball, boxA, boxB, ground])
+World.add(world, buildWalls(Bodies, canvas))
+World.add(world, [ball, boxA, boxB])
 
 Engine.run(engine)
 Render.run(render)
+
+document.body.onkeydown = function ({ keyCode }: KeyboardEvent) {
+    jump(keyCode, boxA)
+}
