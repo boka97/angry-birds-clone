@@ -1,35 +1,31 @@
 import './index.css'
 import Matter from 'matter-js'
+import { makeMouseConstraint } from './sling-shot/mouse-constraint/mouse-constraint'
+import { makeSling } from './sling-shot/sling/sling'
+import { SlingShot } from './sling-shot/sling-shot'
 
-const { Engine, Render, World, Bodies } = Matter
+const { Engine, Render, Runner, Events, World } = Matter
 
 const engine = Engine.create()
+const { world } = engine
 
-const render = Render.create({
-    engine,
+const renderer = Render.create({
     canvas: document.querySelector('#world'),
+    engine,
     options: {
-        wireframes: false,
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: 800,
+        height: 600,
     },
 })
 
-const ball = Bodies.circle(420, 15, 20, {
-    render: {
-        fillStyle: '#ff0000',
-    },
-})
+const runner = Runner.create()
+Render.run(renderer)
+Runner.run(runner, engine)
 
-const boxA = Bodies.rectangle(400, 200, 80, 80)
-const boxB = Bodies.rectangle(450, 50, 80, 80)
+// Create a sling shot
+const mouseConstraint = makeMouseConstraint(renderer.canvas, engine)
+const slingShot = new SlingShot(world, makeSling(), mouseConstraint)
+Events.on(engine, 'afterUpdate', slingShot.onAfterUpdate)
 
-const { canvas } = render
-const ground = Bodies.rectangle(0, canvas.height, canvas.width * 2, 120, {
-    isStatic: true,
-})
-
-World.add(engine.world, [ball, boxA, boxB, ground])
-
-Engine.run(engine)
-Render.run(render)
+World.add(world, [slingShot.body, slingShot.constraint] as Matter.Body[])
+World.add(world, mouseConstraint)
