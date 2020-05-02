@@ -1,11 +1,13 @@
 import { Bodies, Constraint, MouseConstraint, World } from 'matter-js'
 
 export class SlingShot {
+    private numOfShots = 0
+
     constructor(
         private world: World,
         private slingConstraint: Constraint,
         private mouseConstraint: MouseConstraint,
-        private numOfShots: number = 3
+        private maxNumOfShots = 3
     ) {}
 
     get constraint() {
@@ -32,9 +34,15 @@ export class SlingShot {
 
     private release() {
         this.slingConstraint.bodyB = Bodies.circle(170, 450, 20)
-        // Add another bird after 1 second
-        setTimeout(() => {
-            World.add(this.world, this.body)
-        }, 1000)
+        this.numOfShots += 1
+        this.setNewBird()
+    }
+
+    private setNewBird() {
+        if (this.numOfShots < this.maxNumOfShots) {
+            setTimeout(() => {
+                World.add(this.world, this.body)
+            }, 1000)
+        }
     }
 }
