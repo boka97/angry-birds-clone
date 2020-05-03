@@ -28,6 +28,10 @@ export class SlingShot {
         return this.slingConstraint
     }
 
+    set sling(sling: Constraint) {
+        this.sling = sling
+    }
+
     get bird(): Body {
         return this.sling.bodyB
     }
@@ -59,11 +63,15 @@ export class SlingShot {
 
             Events.off(this.engine, 'afterUpdate', this.handleBirdRemoval)
             World.remove(this.world, this.releasedBird)
-            this.addNewBird(Bodies.circle(170, 450, 20))
             World.add(this.world, this.sling)
+            this.addNewBird(Bodies.circle(170, 450, 20))
         }
     }
 
+    /**
+     * Checks if the bird should be released based on the
+     * mouse press and bird position on the sling
+     */
     private shouldReleaseBird(): boolean {
         if (!this.bird) return false
 
@@ -76,10 +84,16 @@ export class SlingShot {
         )
     }
 
+    /**
+     * Checks if the released bird stopped moving
+     */
     private isReleasedBirdStopped() {
         return this.releasedBird.speed < 0.28
     }
 
+    /**
+     * Releases the bird from the sling
+     */
     private releaseBird(): Body {
         this.shotCount += 1
         this.releasedBird = this.bird
@@ -94,6 +108,17 @@ export class SlingShot {
         this.bird = bird
         if (this.shotCount < this.maxNumOfShots) {
             World.add(this.world, this.bird)
+        } else {
+            this.endGame()
         }
+    }
+
+    /**
+     * Removes the sling from the World
+     */
+    private endGame() {
+        console.log('endGame()')
+        World.remove(this.world, this.sling)
+        World.remove(this.world, this.bird)
     }
 }
