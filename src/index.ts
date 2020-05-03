@@ -4,6 +4,7 @@ import { makeMouseConstraint } from './sling-shot/mouse-constraint/mouse-constra
 import { makeSling } from './sling-shot/sling/sling'
 import { SlingShot } from './sling-shot/sling-shot'
 import { makeWalls } from './walls/walls'
+import { makeStack } from './stack/stack'
 
 const { Engine, Render, Runner, World } = Matter
 
@@ -34,4 +35,5 @@ const slingShot = new SlingShot(world, slingConstraint, mouseConstraint, engine)
 World.add(world, slingShot.sling)
 World.add(world, slingShot.bird)
 World.add(world, mouseConstraint)
+World.add(world, makeStack(canvas))
 World.add(world, makeWalls(canvas))
