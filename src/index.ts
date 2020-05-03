@@ -27,10 +27,11 @@ Runner.run(runner, engine)
 const { canvas } = renderer
 
 // Create a sling shot
-const mouseConstraint = makeMouseConstraint(canvas, engine)
-const slingShot = new SlingShot(world, makeSling(), mouseConstraint)
+const mouseConstraint = makeMouseConstraint(engine, canvas)
+const slingConstraint = makeSling()
+const slingShot = new SlingShot(world, slingConstraint, mouseConstraint)
 Events.on(engine, 'afterUpdate', slingShot.onAfterUpdate)
 
-World.add(world, [slingShot.body, slingShot.constraint] as Matter.Body[])
+World.add(world, [slingShot.bird, slingShot.sling] as Matter.Body[])
 World.add(world, mouseConstraint)
 World.add(world, makeWalls(canvas))

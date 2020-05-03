@@ -1,7 +1,16 @@
-import { Bodies, Constraint, MouseConstraint, World } from 'matter-js'
+import {
+    World,
+    Constraint,
+    MouseConstraint,
+    Events,
+    Bodies,
+    Body,
+} from 'matter-js'
+
+// TODO: Extract bird functionality into a separate Bird class
 
 export class SlingShot {
-    private numOfShots = 0
+    private shotCount = 0
 
     constructor(
         private world: World,
@@ -10,19 +19,35 @@ export class SlingShot {
         private maxNumOfShots = 3
     ) {}
 
-    get constraint() {
+    get sling(): Constraint {
         return this.slingConstraint
     }
 
-    get body() {
-        return this.slingConstraint.bodyB
+    get bird(): Body {
+        return this.sling.bodyB
     }
 
-    onAfterUpdate = () => {
-        this.shouldRelease() && this.release()
+    set bird(value: Body) {
+        this.sling.bodyB = value
     }
 
-    private shouldRelease() {
+    onAfterUpdate = (): void => {
+        if (this.shouldReleaseBird()) {
+            const releasedBird = this.releaseBird()
+            Events.on(
+                this.mouseConstraint,
+                'mousedown',
+                this.removeReleasedBird.bind(this, releasedBird)
+            )
+        }
+    }
+
+    private removeReleasedBird(bird: Body): void {
+        World.remove(this.world, bird)
+        Events.off(this.mouseConstraint, 'mousedown', this.removeReleasedBird)
+    }
+
+    private shouldReleaseBird(): boolean {
         const { button } = this.mouseConstraint.mouse
         const { circleRadius } = this.slingConstraint.bodyB
         const { x, y } = this.slingConstraint.bodyB.position
@@ -32,17 +57,23 @@ export class SlingShot {
         )
     }
 
-    private release() {
-        this.slingConstraint.bodyB = Bodies.circle(170, 450, 20)
-        this.numOfShots += 1
-        this.setNewBird()
+    private releaseBird(): Body {
+        const tmp = this.bird
+        this.shotCount += 1
+        this.bird = Bodies.circle(170, 450, 20)
+        this.addNewBird(this.bird)
+
+        return tmp
     }
 
-    private setNewBird() {
-        if (this.numOfShots < this.maxNumOfShots) {
+    /**
+     * Adds a new bird to the world
+     */
+    private addNewBird(bird: Body): void {
+        if (this.shotCount < this.maxNumOfShots) {
             setTimeout(() => {
-                World.add(this.world, this.body)
-            }, 1000)
+                World.add(this.world, bird)
+            }, 1500)
         }
     }
 }
