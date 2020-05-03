@@ -5,6 +5,7 @@ import {
     Events,
     Bodies,
     Body,
+    Engine,
 } from 'matter-js'
 
 // TODO: Extract bird functionality into a separate Bird class
@@ -16,6 +17,7 @@ export class SlingShot {
         private world: World,
         private slingConstraint: Constraint,
         private mouseConstraint: MouseConstraint,
+        private engine: Engine,
         private maxNumOfShots = 3
     ) {}
 
@@ -34,17 +36,14 @@ export class SlingShot {
     onAfterUpdate = (): void => {
         if (this.shouldReleaseBird()) {
             const releasedBird = this.releaseBird()
-            Events.on(
-                this.mouseConstraint,
-                'mousedown',
-                this.removeReleasedBird.bind(this, releasedBird)
-            )
+            setTimeout(() => {
+                Events.on(this.engine, 'afterUpdate', () => {
+                    if (releasedBird.speed < 0.28) {
+                        World.remove(this.world, releasedBird)
+                    }
+                })
+            }, 1000)
         }
-    }
-
-    private removeReleasedBird(bird: Body): void {
-        World.remove(this.world, bird)
-        Events.off(this.mouseConstraint, 'mousedown', this.removeReleasedBird)
     }
 
     private shouldReleaseBird(): boolean {
