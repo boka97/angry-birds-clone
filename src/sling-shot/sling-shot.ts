@@ -54,8 +54,9 @@ export class SlingShot {
         }, 1000)
     }
 
-    private handleBirdRemoval = () => {
+    private handleBirdRemoval = (e) => {
         if (this.isReleasedBirdStopped()) {
+            console.log('yes')
             console.log('2) isReleasedBirdStopped(): true')
             console.log('3) handleBirdRemoval()')
             console.log('4) addNewBird()')
@@ -88,7 +89,9 @@ export class SlingShot {
      * Checks if the released bird stopped moving
      */
     private isReleasedBirdStopped() {
-        return this.releasedBird.speed < 0.28
+        const { speed, angularSpeed } = this.releasedBird
+        const motion = speed ** 2 + angularSpeed ** 2
+        return motion < 0.1
     }
 
     /**

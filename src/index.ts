@@ -5,7 +5,7 @@ import { makeSling } from './sling-shot/sling/sling'
 import { SlingShot } from './sling-shot/sling-shot'
 import { makeWalls } from './walls/walls'
 
-const { Engine, Render, Runner, Events, World } = Matter
+const { Engine, Render, Runner, World } = Matter
 
 const engine = Engine.create()
 const { world } = engine
@@ -31,6 +31,7 @@ const mouseConstraint = makeMouseConstraint(engine, canvas)
 const slingConstraint = makeSling()
 const slingShot = new SlingShot(world, slingConstraint, mouseConstraint, engine)
 
-World.add(world, [slingShot.bird, slingShot.sling] as Matter.Body[])
+World.add(world, slingShot.sling)
+World.add(world, slingShot.bird)
 World.add(world, mouseConstraint)
 World.add(world, makeWalls(canvas))
